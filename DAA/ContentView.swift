@@ -19,6 +19,9 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .previewDevice("iPad Pro (11-inch) (4th generation)")
+    }
 }
