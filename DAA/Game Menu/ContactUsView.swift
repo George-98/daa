@@ -72,8 +72,7 @@ struct ContactUsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(red: 70/255, green: 98/255, blue: 125/255)
-                    .ignoresSafeArea()
+                Color.themeBlue.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 25) {

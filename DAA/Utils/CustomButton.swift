@@ -26,7 +26,7 @@ struct CustomButtonLabel: View {
                     .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
                     .background(
                         RoundedRectangle(cornerRadius: 25)
-                            .fill(Color(red: 70/255, green: 98/255, blue: 125/255))
+                            .fill(Color.themeBlue)
                     )
             )
             .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 3)

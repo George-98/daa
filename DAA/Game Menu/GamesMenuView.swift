@@ -10,10 +10,7 @@ struct GamesMenuView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(red: 70/255, green: 98/255, blue: 125/255)
-                    .ignoresSafeArea()
-                
-                
+                Color.themeBlue.ignoresSafeArea();
 
                 // ... inside your body ...
                 ScrollView {
