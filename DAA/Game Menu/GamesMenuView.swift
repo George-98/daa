@@ -5,6 +5,7 @@ struct GamesMenuView: View {
     let gameItems: [MenuItem]
 
     @State private var selectedItem: MenuItem? = nil
+    
     @Environment(\.dismiss) var dismiss
     
     var body: some View {

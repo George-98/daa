@@ -4,15 +4,24 @@ struct GameMenuView: View {
     // Data passed from the previous menu
     let gameData: MenuItem
     
+    enum GameScreenState: Equatable {
+        case none
+        case playing
+        case result(GameResult)
+    }
+    
+    @State private var gameScreen: GameScreenState = .none
+    
     // State to manage selection, similar to your UIKit gameIdSelected
     @State private var selectedGameId: String? = nil
     @State private var highScoreMode: Int = 0 // 0 for Games, 1 for High Scores
     
-    
     @State private var showInstructions = false
     @State private var showNumeracy1 = false
     
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss;
+    
+    @State private var gameResult: GameResult? = nil
     
     var body: some View {
         ZStack {
@@ -88,7 +97,7 @@ struct GameMenuView: View {
                 // Play Now Button (Only shows if a game is selected)
                 if let _ = selectedGameId {
                     Button(action: {
-                        showNumeracy1 = true   // ✅ trigger game
+                        gameScreen = .playing
                     }) {
                         Text("Play Now!")
                             .font(.system(size: 20, weight: .bold, design: .monospaced))
@@ -99,7 +108,6 @@ struct GameMenuView: View {
                             .cornerRadius(10)
                             .padding()
                     }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 } else {
                     Spacer().frame(height: 100)
                 }
@@ -108,8 +116,26 @@ struct GameMenuView: View {
         .sheet(isPresented: $showInstructions) {
             InstructionIndexView(gameData: gameData)
         }
-        .fullScreenCover(isPresented: $showNumeracy1) {
-            MathsTestView()
+        .fullScreenCover(isPresented: Binding<Bool>(
+            get: { gameScreen != .none },
+            set: { if !$0 { gameScreen = .none } }
+        )) {
+            switch gameScreen {
+            case .playing:
+                MathsTestView { result in
+                    gameScreen = .result(result)
+                }
+            case .result(let result):
+                ResultView(
+                    totalScore: result.score,
+                    correctAnswers: result.correct,
+                    wrongAnswers: result.wrong,
+                    onExitToMenu: { gameScreen = .none },
+                    onPlayAgain: { gameScreen = .playing }  // ✅ restart test
+                )
+            case .none:
+                EmptyView()
+            }
         }
     }
 }

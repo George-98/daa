@@ -18,3 +18,9 @@ struct GameItem {
     let wrong_answers_id: String
     let gameInstructions: [String]
 }
+
+struct GameResult: Equatable {
+    let score: Int
+    let correct: Int
+    let wrong: Int
+}

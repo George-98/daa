@@ -13,8 +13,12 @@ struct MathsTestView: View {
     @State private var correctAnswer: Double = 0
     
     @State private var score: Int = 0
-    @State private var timeRemaining: Int = 60
+    @State private var timeRemaining: Int = 5
     @State private var timer: Timer?
+    
+    @Environment(\.dismiss) var dismiss
+    
+    var onGameEnd: (GameResult) -> Void;
     
     var body: some View {
         ZStack {
@@ -23,25 +27,40 @@ struct MathsTestView: View {
             
             VStack(spacing: 15) {
                 
-                // MARK: - Header (Timer + Score)
                 HStack {
-                    Text("⏱ \(timeRemaining)s")
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 22, weight: .bold))
+                    }
+                    
                     Spacer()
-                    Text("Score: \(score)")
+                    
+                    Text("⏱ \(timeRemaining)s")
                 }
                 .foregroundColor(.white)
                 .font(.system(size: 18, weight: .bold))
-                .padding(.horizontal)
+                .padding(.horizontal, 30)
+                .padding(.top, 10)
                 
                 if let q = question {
                     ZStack {
+                        // Optional background panel (subtle)
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.black.opacity(0.2))
                         
                         Text(q.text)
                             .foregroundColor(.white)
-                            .font(.system(size: 20, weight: .bold, design: .monospaced))
+                            .font(.system(size: 42, weight: .bold, design: .monospaced)) // 🔥 bigger
                             .multilineTextAlignment(.center)
+                            .minimumScaleFactor(0.5) // prevents overflow
+                            .lineLimit(2)
                             .padding()
                     }
+                    .frame(minHeight: 150)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal)
                 }
                 
                 Spacer()
@@ -77,9 +96,9 @@ struct MathsTestView: View {
 extension MathsTestView {
     
     func startGame() {
-        score = 0
-        timeRemaining = 60
-        generateTest()
+        score = 0;
+        timeRemaining = self.timeRemaining;
+        generateTest();
         
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
@@ -87,7 +106,14 @@ extension MathsTestView {
                 timeRemaining -= 1
             } else {
                 timer?.invalidate()
-                print("Game Over. Final Score: \(score)")
+                
+                onGameEnd(
+                    GameResult(
+                        score: max(score, 0),
+                        correct: score,
+                        wrong: 0
+                    )
+                )
             }
         }
     }
