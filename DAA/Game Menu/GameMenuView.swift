@@ -13,11 +13,13 @@ struct GameMenuView: View {
     @State private var gameScreen: GameScreenState = .none
     
     // State to manage selection, similar to your UIKit gameIdSelected
-    @State private var selectedGameId: String? = nil
+    @State private var selectedGameId: GameType? = nil
     @State private var highScoreMode: Int = 0 // 0 for Games, 1 for High Scores
     
     @State private var showInstructions = false
     @State private var showNumeracy1 = false
+    
+    @State private var wrongAnswers: [WrongAnswer] = []
     
     @Environment(\.dismiss) var dismiss;
     
@@ -40,7 +42,7 @@ struct GameMenuView: View {
                     Button(action: {
                         dismiss();
                     }) {
-                        Image(systemName: "xmark")		
+                        Image(systemName: "xmark")
                             .font(.system(size: 25, weight: .bold))
                     }
                 }
@@ -120,37 +122,60 @@ struct GameMenuView: View {
             get: { gameScreen != .none },
             set: { if !$0 { gameScreen = .none } }
         )) {
+            
             switch gameScreen {
+                
             case .playing:
-                MathsTestView { result in
-                    gameScreen = .result(result)
+                if let game = selectedGameId {
+                    switch game {
+                    case .numeracy1:
+                        MathsTestView { result, wrongs in
+                            self.wrongAnswers = wrongs
+                            self.gameResult = result
+                            gameScreen = .result(result)
+                        }
+                        
+                    case .verbalReasoning1:
+                        VRTestView { result, wrongs in
+                            self.wrongAnswers = wrongs
+                            self.gameResult = result
+                            gameScreen = .result(result)
+                        }
+                    }
                 }
+                
             case .result(let result):
                 ResultView(
                     totalScore: result.score,
                     correctAnswers: result.correct,
                     wrongAnswers: result.wrong,
-                    onExitToMenu: { gameScreen = .none },
-                    onPlayAgain: { gameScreen = .playing }  // ✅ restart test
+                    wrongAnswersArray: wrongAnswers,
+                    onExitToMenu: {
+                        gameScreen = .none
+                    },
+                    onPlayAgain: {
+                        gameScreen = .playing
+                    }
                 )
+                
             case .none:
                 EmptyView()
             }
         }
     }
-}
-
-// MARK: - Preview Provider
-struct GameMenuView_Previews: PreviewProvider {
-    static var previews: some View {
-        let mockGames = [
-            GameItem(id: "flag", title: "Figures Letters And Groups (FLAG) Test", show_leaderboard_breakdown: true, show_leaderboard_screenshot: true, game_time_limit: 60, total_score_id: "t1", correct_answers_id: "c1", wrong_answers_id: "w1", gameInstructions: []),
-            GameItem(id: "cut", title: "Cognitive Update Test (CUT)", show_leaderboard_breakdown: true, show_leaderboard_screenshot: true, game_time_limit: 60, total_score_id: "t2", correct_answers_id: "c2", wrong_answers_id: "w2", gameInstructions: []),
-            GameItem(id: "clan", title: "Colours Letter And Number (CLAN) Test", show_leaderboard_breakdown: true, show_leaderboard_screenshot: true, game_time_limit: 60,total_score_id: "t3", correct_answers_id: "c3", wrong_answers_id: "w3", gameInstructions: [])
-        ]
-        
-        let mockMenu = MenuItem(id: "multi", title: "Multitasking", subtitle: "But how well can you multi-task?", games: mockGames)
-        
-        GameMenuView(gameData: mockMenu)
+    
+    // MARK: - Preview Provider
+    struct GameMenuView_Previews: PreviewProvider {
+        static var previews: some View {
+            let mockGames = [
+                GameItem(id: .numeracy1, title: "Figures Letters And Groups (FLAG) Test", show_leaderboard_breakdown: true, show_leaderboard_screenshot: true, game_time_limit: 60, total_score_id: "t1", correct_answers_id: "c1", wrong_answers_id: "w1", gameInstructions: []),
+                GameItem(id: .numeracy1, title: "Cognitive Update Test (CUT)", show_leaderboard_breakdown: true, show_leaderboard_screenshot: true, game_time_limit: 60, total_score_id: "t2", correct_answers_id: "c2", wrong_answers_id: "w2", gameInstructions: []),
+                GameItem(id: .numeracy1, title: "Colours Letter And Number (CLAN) Test", show_leaderboard_breakdown: true, show_leaderboard_screenshot: true, game_time_limit: 60,total_score_id: "t3", correct_answers_id: "c3", wrong_answers_id: "w3", gameInstructions: [])
+            ]
+            
+            let mockMenu = MenuItem(id: "multi", title: "Multitasking", subtitle: "But how well can you multi-task?", games: mockGames)
+            
+            GameMenuView(gameData: mockMenu)
+        }
     }
 }

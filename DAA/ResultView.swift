@@ -6,13 +6,14 @@ struct ResultView: View {
     var correctAnswers: Int
     var wrongAnswers: Int
     
-    var onExitToMenu: () -> Void
-    var onPlayAgain: () -> Void
+    var wrongAnswersArray: [WrongAnswer]
+    var onExitToMenu: () -> Void;
+    var onPlayAgain: () -> Void;
     
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             
             HStack {
                 Button(action: {
@@ -34,6 +35,7 @@ struct ResultView: View {
             Text("Time is up!")
                 .font(.system(size: 40, weight: .medium))
                 .foregroundColor(.white)
+                .padding(.top, 30)
             
             Text("Your score is: \(totalScore)")
                 .font(.title2)
@@ -52,6 +54,8 @@ struct ResultView: View {
                     .cornerRadius(30)
             }
             .padding(.horizontal)
+            .padding(.top, 30)
+            .padding(.bottom, 30)
             
             // Score Dashboard
             HStack(spacing: 0) {
@@ -60,53 +64,73 @@ struct ResultView: View {
                 scoreBox(title: "Overall score", value: "\(totalScore)", color: .gray)
             }
             .frame(height: 120)
-            .padding(.horizontal)
             
-            // Wrong Answer Example
-            VStack(alignment: .leading, spacing: 10) {
-                Text("* Question 1")
-                    .font(.headline)
-                
-                VStack {
-                    Text("14 × 5")
-                        .font(.title)
-                    
-                    Text("5")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke())
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    ForEach(wrongAnswersArray) { item in
+                        
+                        VStack(alignment: .leading, spacing: 10) {
+                            
+                            Text("* Question \(item.questionNumber)")
+                                .font(.headline)
+                            
+                            // Screenshot-style box
+                            VStack {
+                                Text(item.question)
+                                    .font(.title3)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(.white)
+                                
+                                Text(item.yourAnswer.replacingOccurrences(of: "Your answer: ", with: ""))
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white)
+                                    )
+                            }
+                            .frame(width: 140)
+                            .padding()
+                            .background(Color.themeBlue)
+                            .cornerRadius(10)
+                            
+                            Text(item.correctAnswer)
+                                .foregroundColor(.green)
+                            
+                            Text(item.yourAnswer)
+                                .foregroundColor(.red)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading) // 👈 IMPORTANT
+                        .padding(.vertical)
+                        .padding(.leading, 16)
+                        
+                    }
                 }
-                .frame(width: 120)
-                .padding()
-                .background(Color.themeBlue)
-                .cornerRadius(10)
-                
-                Text("Correct answer: 70")
-                    .foregroundColor(.green)
-                
-                Text("Your answer: 5")
-                    .foregroundColor(.red)
+                .frame(maxWidth: .infinity)
             }
-            .padding()
-            
-            Spacer()
+            .frame(maxWidth: .infinity)
+            .background(Color.white)
+            .ignoresSafeArea(edges: .bottom)
         }
+        .frame(maxWidth: .infinity)
         .background(Color.themeBlue.ignoresSafeArea())
     }
     
     // Reusable score box
     func scoreBox(title: String, value: String, color: Color) -> some View {
-        VStack {
+        VStack(spacing: 0) {
             Text(title)
                 .font(.caption)
+                .frame(height: 50)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
-                .padding(5)
                 .frame(maxWidth: .infinity)
                 .background(color)
             
             Text(value)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
                 .background(Color.white.opacity(0.8))
         }
         .border(Color.white, width: 1)

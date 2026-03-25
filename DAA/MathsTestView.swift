@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MathsTestView: View {
     
+    @StateObject var viewModel = StandardGameViewModel()
+    
     struct Question: Identifiable {
         let id = UUID()
         let text: String
@@ -12,18 +14,20 @@ struct MathsTestView: View {
     @State private var answers: [Double] = []
     @State private var correctAnswer: Double = 0
     
-    @State private var score: Int = 0
     @State private var timeRemaining: Int = 5
     @State private var timer: Timer?
     
+    @State private var correctAnswers = Int()
+    
+    @State private var questionNumber: Int = 0
+    
     @Environment(\.dismiss) var dismiss
     
-    var onGameEnd: (GameResult) -> Void;
+    var onGameEnd: (GameResult, [WrongAnswer]) -> Void
     
     var body: some View {
         ZStack {
-            Color(red: 70/255, green: 98/255, blue: 125/255)
-                .ignoresSafeArea()
+            Color.themeBlue.ignoresSafeArea()
             
             VStack(spacing: 15) {
                 
@@ -96,7 +100,8 @@ struct MathsTestView: View {
 extension MathsTestView {
     
     func startGame() {
-        score = 0;
+        correctAnswer = 0;
+        viewModel.wrongAnswersArray = [];
         timeRemaining = self.timeRemaining;
         generateTest();
         
@@ -107,12 +112,16 @@ extension MathsTestView {
             } else {
                 timer?.invalidate()
                 
+                var score: Int = correctAnswers - viewModel.wrongAnswersArray.count;
+                
+                score = score < 0 ? 0 : score;
                 onGameEnd(
                     GameResult(
-                        score: max(score, 0),
-                        correct: score,
-                        wrong: 0
-                    )
+                        score: score,
+                        correct: correctAnswers,
+                        wrong: viewModel.wrongAnswersArray.count
+                    ),
+                    viewModel.wrongAnswersArray
                 )
             }
         }
@@ -172,10 +181,20 @@ extension MathsTestView {
     }
     
     func checkAnswer(_ selected: Double) {
+        questionNumber += 1
+        
         if selected == correctAnswer {
-            score += 1
+            correctAnswer += 1
         } else {
-            score -= 1
+            // SAVE WRONG ANSWER
+            viewModel.wrongAnswersArray.append(
+                WrongAnswer(
+                    questionNumber: questionNumber,
+                    question: question?.text ?? "",
+                    correctAnswer: "Correct answer: \(format(correctAnswer))",
+                    yourAnswer: "Your answer: \(format(selected))"
+                )
+            )
         }
         
         generateTest()

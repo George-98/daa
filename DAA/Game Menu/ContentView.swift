@@ -42,26 +42,33 @@ struct ContentView: View {
                     subtitle: "How good is your mental maths?",
                     games: [
                         GameItem(
-                            id: "numeracy_1_test",
+                            id: .numeracy1,
                             title: "Numerical Reasoning 1",
                             show_leaderboard_breakdown: true,
                             show_leaderboard_screenshot: true,
                             game_time_limit: 0,
-                            total_score_id: "Highscore",
+                            total_score_id: "",
                             correct_answers_id: "arithmeticcorrectanswers",
                             wrong_answers_id: "arithmeticwronganswers",
                             gameInstructions: [
                                 "ArithmetricInstruction",
                                 "ArithmetricInstruction2"
                             ]
-                        ),
+                        )
+                    ]
+                ),
+                MenuItem(
+                    id: "verbal_reasoning",
+                    title: "Verbal Reasoning",
+                    subtitle: "Can you understand the text?",
+                    games: [
                         GameItem(
-                            id: "numeracy_2_test",
-                            title: "Numerical Reasoning 2",
+                            id: .verbalReasoning1,
+                            title: "Verbal Reasoning Test",
                             show_leaderboard_breakdown: true,
                             show_leaderboard_screenshot: true,
                             game_time_limit: 0,
-                            total_score_id: "Highscore",
+                            total_score_id: "",
                             correct_answers_id: "arithmeticcorrectanswers",
                             wrong_answers_id: "arithmeticwronganswers",
                             gameInstructions: [

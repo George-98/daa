@@ -8,7 +8,7 @@ struct MenuItem: Identifiable {
 }
 
 struct GameItem {
-    let id: String
+    let id: GameType
     let title: String
     let show_leaderboard_breakdown: Bool
     let show_leaderboard_screenshot: Bool
@@ -23,4 +23,33 @@ struct GameResult: Equatable {
     let score: Int
     let correct: Int
     let wrong: Int
+}
+
+struct WrongAnswer: Identifiable {
+    let id = UUID()
+    let questionNumber: Int
+    let question: String
+    let correctAnswer: String
+    let yourAnswer: String
+}
+
+enum GameType {
+    case numeracy1
+    case verbalReasoning1
+}
+
+struct VRQuestion {
+    let statement: String   // Add this line
+    let question: String
+    let options: [String]
+    let correctAnswer: String
+}
+
+struct House {
+    let name: String
+    let location: String
+    let distanceToWork: String
+    let bedrooms: Int
+    let hasGarden: Bool
+    let distanceToShops: String
 }
